@@ -1,0 +1,48 @@
+Dependencies for Project 'hello', Target 'hello': (DO NOT MODIFY !)
+F (.\hello.c)(0x54F101AE)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -IC:\ti\TivaWare_C_Series-1.1 -IC:\ti\TivaWare_C_Series-1.1 --c99-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\Luminary-D__UVISION_VERSION="513" -Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_BLIZZARD_RB1-o .\rvmdk\hello.o --omf_browse .\rvmdk\hello.crf --depend .\rvmdk\hello.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5476D400)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5476D400)
+I (C:\ti\TivaWare_C_Series-1.1\inc\tm4c123gh6pm.h)(0x54B4B49E)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_memmap.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_types.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_nvic.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\debug.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\fpu.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\gpio.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\interrupt.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\pin_map.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\ssi.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\sysctl.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\uart.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\utils\uartstdio.h)(0x54B4B54F)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x5476D3FA)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\rom.h)(0x54B4B482)
+I (Adafruit_SSD1351.h)(0x54D53FFB)
+I (glcdfont.h)(0x54D540BF)
+F (.\startup_rvmdk.S)(0x54F100EB)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork --pd "__MICROLIB SETA 1"-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\Luminary--pd "__UVISION_VERSION SETA 513"-o .\rvmdk\startup_rvmdk.o --depend .\rvmdk\startup_rvmdk.d)
+F (C:\ti\TivaWare_C_Series-1.1\utils\uartstdio.c)(0x54B4B54F)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -IC:\ti\TivaWare_C_Series-1.1 --c99-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\Luminary-D__UVISION_VERSION="513" -Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_BLIZZARD_RB1-o .\rvmdk\uartstdio.o --omf_browse .\rvmdk\uartstdio.crf --depend .\rvmdk\uartstdio.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5476D400)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5476D400)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x5476D3FA)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_ints.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_memmap.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_types.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_uart.h)(0x54B4B49D)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\debug.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\interrupt.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\rom.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\rom_map.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\sysctl.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\uart.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\utils\uartstdio.h)(0x54B4B54F)
+F (.\Adafruit_SSD1351.c)(0x54E6FC9D)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O2 --apcs=interwork --split_sections -IC:\ti\TivaWare_C_Series-1.1 --c99-I C:\Keil_v5\ARM\RV31\INC-I C:\Keil_v5\ARM\CMSIS\Include-I C:\Keil_v5\ARM\Inc\Luminary-D__UVISION_VERSION="513" -Drvmdk -DPART_TM4C123GH6PM -DTARGET_IS_BLIZZARD_RB1-o .\rvmdk\adafruit_ssd1351.o --omf_browse .\rvmdk\adafruit_ssd1351.crf --depend .\rvmdk\adafruit_ssd1351.d)
+I (Adafruit_SSD1351.h)(0x54D53FFB)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5476D400)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5476D400)
+I (glcdfont.h)(0x54D540BF)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\ssi.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\rom.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\driverlib\gpio.h)(0x54B4B482)
+I (C:\ti\TivaWare_C_Series-1.1\inc\hw_memmap.h)(0x54B4B49D)
+F (C:\ti\TivaWare_C_Series-1.1\driverlib\rvmdk\driverlib.lib)(0x54B4B482)()
+F (.\readme.txt)(0x54B4B485)()
