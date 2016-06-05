@@ -52,6 +52,44 @@ volatile int arrayloc = 0;
 char message[50];
 volatile int len_msg = 0;
 
+//********************************************
+//*****************************************************************************
+//
+//! \addtogroup ssi_examples_list
+//! <h1>SPI Master (spi_master)</h1>
+//!
+//! This example shows how to configure the SSI0 as SPI Master.  The code will
+//! send three characters on the master Tx then polls the receive FIFO until
+//! 3 characters are received on the master Rx.
+//!
+//! This example uses the following peripherals and I/O signals.  You must
+//! review these and change as needed for your own board:
+//! - SSI0 peripheral
+//! - GPIO Port A peripheral (for SSI0 pins)
+//! - SSI0Clk - PA2
+//! - SSI0Fss - PA3
+//! - SSI0Rx  - PA4
+//! - SSI0Tx  - PA5
+//!
+//! The following UART signals are configured only for displaying console
+//! messages for this example.  These are not required for operation of SSI0.
+//! - UART0 peripheral
+//! - GPIO Port A peripheral (for UART0 pins)
+//! - UART0RX - PA0
+//! - UART0TX - PA1
+//!
+//! This example uses the following interrupt handlers.  To use this example
+//! in your own application you must add these interrupt handlers to your
+//! vector table.
+//! - None.
+//
+//*****************************************************************************
+
+//*****************************************************************************
+//
+// Number of bytes to send and receive.
+//
+//*****************************************************************************
 #define NUM_SSI_DATA            3
 
 //*****************************************************************************
@@ -70,7 +108,12 @@ InitConsole(void)
     //
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+	//  ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+
 	
+    // Configure the pin muxing for UART0 functions on port A0 and A1.
+    // Select the alternate (UART) function for these pins.
+    //
     ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
     ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
     GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
@@ -79,7 +122,8 @@ InitConsole(void)
     //
     UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
     // Initialize UART0 for console I/O. (See uartstdio.c)
-		//UARTStdioConfig(0, 9, 16000000);
+    //
+		UARTStdioConfig(0, 115200, 16000000);
 }
 
 void ConfigureUART1(void) {
@@ -98,15 +142,14 @@ void ConfigureUART1(void) {
 
     // Use the internal 16MHz oscillator as the UART clock source.
     //
-    //UARTClockSourceSet(UART1_BASE, UART_CLOCK_PIOSC);
+    UARTClockSourceSet(UART1_BASE, UART_CLOCK_PIOSC);
 
     // Initialize UART1
     //
-		ROM_UARTConfigSetExpClk(UART1_BASE, ROM_SysCtlClockGet() , 9600,
+		ROM_UARTConfigSetExpClk(UART1_BASE, 16000000, 115200,
                             (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
                              UART_CONFIG_PAR_NONE));
 }
-
 void Outstr_UART1 (uint8_t *ptr) {
 
 	while (*ptr) {
@@ -187,18 +230,18 @@ void UART1IntHandler(void) {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	Translate function is called whenever a signal needs to be outputted to the 
-//	OLED screen. It happens when signal 1 and signal 2 are not equal to one another.
-//	It mods repeat by either 3 or 4 and depending on the output it'll correspond to
-//	the location of the letter under that number. 
-//	(ex. 1 is pressed / repeat is 2 then the output is C)
+/*
+	Translate function is called whenever a signal needs to be outputted to the 
+	OLED screen. It happens when signal 1 and signal 2 are not equal to one another.
+	It mods repeat by either 3 or 4 and depending on the output it'll correspond to
+	the location of the letter under that number. 
+	(ex. 1 is pressed / repeat is 2 then the output is C)
 
-//	Also, it stores to the message array, which will be fed to the FIFO and out for 
-//	transfer when the enter key is pressed.
-//
-//	If enter is pressed, it resets EVERYTHING, because we want to start fresh again.
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	Also, it stores to the message array, which will be fed to the FIFO and out for 
+	transfer when the enter key is pressed.
+
+	If enter is pressed, it resets EVERYTHING, because we want to start fresh again.
+*/
 
 void translate(void)
 {
@@ -256,11 +299,7 @@ void translate(void)
 					arrayloc++;
 			}
 			else if(signal1 == 0x00FF)
-			{
 				x++;
-				message[arrayloc] = ' ';
-				arrayloc++;
-			}
 			if(signal1 == 0x26D9)
 			{
 					Outstr_UART1((uint8_t *)message);
@@ -307,6 +346,11 @@ void initialize(void)
   GPIOIntEnable(GPIO_PORTD_BASE, GPIO_INT_PIN_3);
 	ROM_IntEnable(INT_GPIOD);
 
+	/*
+		Enable Interrupts on UART1
+		
+	*/
+	ROM_IntMasterEnable();
 }
 
 void SYS_TICK_IR_HANDLER(void)
@@ -314,23 +358,23 @@ void SYS_TICK_IR_HANDLER(void)
 	iTick++;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	This is my interrupt handler. Whenever an interrupt is detected on the falling edge,
-//	it will call this function. I use PD3 to detect the time difference. The time difference
-//	between falling edges determines what value was sent. 
-//
-//	if TIME is too big then we know it just started and we don't take it into consideration
-//	I have two signals: signal 1 and signal 2. Signal 1 holds the 'current' signal and signal 2
-//	holds the next one that comes in.
-//				- If signal 1 and signal 2 are equal then increment 
-//					the repeat variable (keeps count how many times its been clicked) 
-//					and set signal 2 to 0
-//				- If they're different, then print signal 1 and then set signal1 to signal 2
-//					this way it holds onto the next one to keep count of in case there are repeats
-//				- if an interrupt is triggered in here counter will be set to 0 to make sure the clock
-//					essentially resets
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+	This is my interrupt handler. Whenever an interrupt is detected on the falling edge,
+	it will call this function. I use PD3 to detect the time difference. The time difference
+	between falling edges determines what value was sent. 
+
+	if TIME is too big then we know it just started and we don't take it into consideration
+	I have two signals: signal 1 and signal 2. Signal 1 holds the 'current' signal and signal 2
+	holds the next one that comes in.
+				- If signal 1 and signal 2 are equal then increment 
+					the repeat variable (keeps count how many times its been clicked) 
+					and set signal 2 to 0
+				- If they're different, then print signal 1 and then set signal1 to signal 2
+					this way it holds onto the next one to keep count of in case there are repeats
+				- if an interrupt is triggered in here counter will be set to 0 to make sure the clock
+					essentially resets
+
+*/
 void IR_HANDLER(void)
 {
 	GPIOIntClear(GPIO_PORTD_BASE, GPIO_INT_PIN_3);
@@ -382,17 +426,17 @@ void IR_HANDLER(void)
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	Logic:
-//		- Configure all clock, Pins for Output/SSI/Input/UART
-//		- Run a while loop
-//				- Sleep and wait for interrupt
-//				- Poll for 2 seconds and check if there is an interrupt
-//								- If interrupt is hit, it resets the clock/count to zero (resetting clock)
-//				- If it finishes polling for 2 seconds,
-//								- Print current character in cycle and set the signals and repeat to 0
-//				- Run always 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+	Logic:
+		- Configure all clock, Pins for Output/SSI/Input/UART
+		- Run a while loop
+				- Sleep and wait for interrupt
+				- Poll for 2 seconds and check if there is an interrupt
+								- If interrupt is hit, it resets the clock/count to zero (resetting clock)
+				- If it finishes polling for 2 seconds,
+								- Print current character in cycle and set the signals and repeat to 0
+				- Run always 
+*/
 int main(void){
 	
     // Set the clocking to run directly from the external crystal/oscillator.
@@ -406,9 +450,9 @@ int main(void){
 
     // For this example SSI0 is used with PortA[5:2].
 		// GPIO port A needs to be enabled so these pins can be used.
-    
-		InitConsole();
-		ConfigureUART1();
+    //
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 
     // Configure the pin muxing for SSI0 functions on port A2, A3, A4, and A5.
     //
@@ -421,10 +465,10 @@ int main(void){
     //      PA4 - SSI0Rx
     //      PA3 - SSI0Fss
     //      PA2 - SSI0CLK
-	
+    //
     ROM_GPIOPinTypeSSI(GPIO_PORTA_BASE, GPIO_PIN_5 | GPIO_PIN_3 |
                    GPIO_PIN_2);
-	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+		ROM_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_4 | GPIO_PIN_5);
 
     ROM_SSIConfigSetExpClk(SSI0_BASE, SysCtlClockGet(), SSI_FRF_MOTO_MODE_0,
                        SSI_MODE_MASTER, 1000000, 8);
@@ -433,18 +477,21 @@ int main(void){
     //
 		ROM_SSIEnable(SSI0_BASE);
 
+		InitConsole();
 		initialize();
 		reset();
 		Adafruit_SSD1351_Init(128,128);
 		begin();
+		ConfigureUART1();
 		ROM_IntEnable(INT_UART1);
 		ROM_UARTIntEnable(UART1_BASE, UART_INT_RX | UART_INT_RT);
+		ROM_IntEnable(INT_UART0);
+		ROM_UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);
 		UARTprintf("hi.");
-		ROM_IntMasterEnable();
 		fillScreen(BLACK);
 		drawFastHLine(0, 64, 128, YELLOW);
 		while(1){
-			//ROM_SysCtlSleep();
+			ROM_SysCtlSleep();
 			for(counter = 0; counter < 100; counter ++)
 			{
 				ROM_SysCtlDelay(SysCtlClockGet()*2/300);

@@ -1,37 +1,39 @@
-/*
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	IR Receiver Program
+//	Stanley Chen
+//  EEC 172
+//  996735641
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	IR Receiver Program
-	Stanley Chen
-
-*/
-
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "inc/tm4c123gh6pm.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
+#include "inc/hw_gpio.h"
 #include "inc/hw_nvic.h"
 #include "driverlib/debug.h"
 #include "driverlib/fpu.h"
 #include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
 #include "driverlib/pin_map.h"
-#include "driverlib/ssi.h"
+#include "driverlib/rom.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/interrupt.h"
 #include "driverlib/uart.h"
 #include "utils/uartstdio.h"
-#include "driverlib/rom.h"
-/*
-	Creates the global constants
-		- Range of time for 0 and 1 bit 
-		- Period is used as a base to check how long it took to count down
-		  to the next falling edge
-		- Time: Time between two falling edges
-		- signal: stores the 32 bits that are received
-		- COUNT: keeps count of the amount of 0 and 1 that are being received
-		  will let us know what we should use as useful information in the case
-		  that the button is held down
-*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	Creates the global constants
+//		- Range of time for 0 and 1 bit 
+//		- Period is used as a base to check how long it took to count down
+//		  to the next falling edge
+//		- Time: Time between two falling edges
+//		- signal: stores the 32 bits that are received
+//		- COUNT: keeps count of the amount of 0 and 1 that are being received
+//		  will let us know what we should use as useful information in the case
+//		  that the button is held down
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const int INT_BIT0_MIN = 50000;
 const int INT_BIT0_MAX = 60000;
 const int INT_BIT1_MIN = 100000;
@@ -42,6 +44,7 @@ volatile int iTick = 0;
 volatile int TIME = 0;
 volatile int signal = 0;
 volatile int COUNT = 0;
+bool CLEAR_FLAG = true;
 
 
 //*****************************************************************************
@@ -98,25 +101,25 @@ void SYS_TICK_IR_HANDLER(void)
 	iTick++;
 }
 
-/*
-	This is my interrupt handler. Whenever an interrupt is detected on the falling edge,
-	it will call this function. I use PD3 to detect the time difference. The time difference
-	between falling edges determines what value was sent. 
-*/
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	This is my interrupt handler. Whenever an interrupt is detected on the falling edge,
+//	it will call this function. I use PD3 to detect the time difference. The time difference
+//	between falling edges determines what value was sent. 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void IR_HANDLER(void)
 {
 	GPIOIntClear(GPIO_PORTD_BASE, GPIO_INT_PIN_3);
 	TIME = PERIOD - ROM_SysTickValueGet();
 	NVIC_ST_CURRENT_R = 0x00; 
 	
-	/*
-		Make sure that the Time difference isn't too long; otherwise it is the beginning
-		If it isn't too long, then we can start taking down the first 32 time measurements
-		the signal's time is checked between the ranges and determined to be a 0 or 1
-		Two possible ways of storing: array or int. I chose int because this means I wouldn't
-		have to deal with locations. In the int, all I have to do is shift it left once and then
-		add the new bit digit.
-	*/
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Make sure that the Time difference isn't too long; otherwise it is the beginning
+//		If it isn't too long, then we can start taking down the first 32 time measurements
+//		the signal's time is checked between the ranges and determined to be a 0 or 1
+//		Two possible ways of storing: array or int. I chose int because this means I wouldn't
+//		have to deal with locations. In the int, all I have to do is shift it left once and then
+//		add the new bit digit.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if(TIME > 500000)
 	{
 		COUNT = 0;
@@ -138,15 +141,14 @@ void IR_HANDLER(void)
 			signal = (signal << 1) + 1;
 		}
 	}
-
-	/*
-		Signal is comprised of 32 bits. The first 16 bits are the address which is the same
-		due to the address corresponding to a certain brand/machine. Hence, this isn't important because
-		we are assuming that the receiver is compatible with the transmission type. The last 16 bits will always
-		differ due it corresponding to the button that is being pressed. The 32 bits are then ANDED with 0x0000FFFFF
-		which will leave us with the last 16 bits. Then, those 16 bits are compared to 
-		the hexadecimal values of the button. I chose to use if statements (could use switches too).
-	*/
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Signal is comprised of 32 bits. The first 16 bits are the address which is the same
+//		due to the address corresponding to a certain brand/machine. Hence, this isn't important because
+//		we are assuming that the receiver is compatible with the transmission type. The last 16 bits will always
+//		differ due it corresponding to the button that is being pressed. The 32 bits are then ANDED with 0x0000FFFFF
+//		which will leave us with the last 16 bits. Then, those 16 bits are compared to 
+//		the hexadecimal values of the button. I chose to use if statements (could use switches too).
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if(COUNT == 32)
 	{
 		signal = signal & 0xFFFF;
@@ -182,6 +184,12 @@ void IR_HANDLER(void)
 			UARTprintf("MUTE\n");
 		
 	}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//      Count keeps counting but we only care about the first 32 bits that are sent.
+//      If it is held down, then it will continously send the same signal for the duration
+//      that it is held down. When it is let go however, it will create a large period of time
+//      where TIME will be extremely large (which is how we will detect a button be let go).
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	COUNT++;
 }
 
@@ -223,11 +231,11 @@ void initialize(void)
 }
 int main(void)
 {
+	
 	initialize();
 	while(1)
 	{
-		//Wait for Interrupt
-		
+		ROM_SysCtlSleep();
 	}
 	
 }
