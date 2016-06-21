@@ -1,0 +1,22 @@
+*.rar
+*.pdf
+*.txt
+*.s
+*.ewd
+*.ewp
+*.icf
+*.ld
+*.sgxx
+*.syferR
+*.uvopt
+*.uvproj
+*.docx
+ccs/
+ewarm/
+gcc/
+rvmdk/
+sourcerygxx/
+Turnin/
+Final\ Prep\ Guide/
+
+
