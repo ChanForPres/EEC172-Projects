@@ -1,9 +1,0 @@
-.\rvmdk\adafruit_ssd1351.o: Adafruit_SSD1351.c
-.\rvmdk\adafruit_ssd1351.o: Adafruit_SSD1351.h
-.\rvmdk\adafruit_ssd1351.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\rvmdk\adafruit_ssd1351.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-.\rvmdk\adafruit_ssd1351.o: glcdfont.h
-.\rvmdk\adafruit_ssd1351.o: C:\ti\TivaWare_C_Series-1.1\driverlib/ssi.h
-.\rvmdk\adafruit_ssd1351.o: C:\ti\TivaWare_C_Series-1.1\driverlib/rom.h
-.\rvmdk\adafruit_ssd1351.o: C:\ti\TivaWare_C_Series-1.1\driverlib/gpio.h
-.\rvmdk\adafruit_ssd1351.o: C:\ti\TivaWare_C_Series-1.1\inc/hw_memmap.h
